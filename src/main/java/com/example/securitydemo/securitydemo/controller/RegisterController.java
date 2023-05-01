@@ -33,23 +33,42 @@ public class RegisterController {
         return "formularioRegistro";
     }
 
+    /**
+     * Metodo que registra un nuevo usuario en el sistema, utilizando un objeto UserDto
+     *
+     * @param userDto   Objeto UserDto con la información del nuevo usuario a registrar
+     * @param result    Objeto BindingResult que contiene los errores de validación del formulario
+     * @param model     Objeto Model para enviar datos a la vista
+     * @return          Cadena con la ruta de redirección después de registrar el usuario
+     */
     @PostMapping("/registrarusuario")
     public String registarUsuario(@Valid @ModelAttribute("usuario") UserDto userDto, BindingResult result, Model model)
     {
+        // Verifica si ya existe un usuario con el mismo nombre de usuario
         Usuario usuarioExistente = usuarioRepository.findByUsername(userDto.getUsername());
+        // Se busca si el usuario ya está registrado en la base de datos
+        Usuario usuarioExistente = usuarioRepository.findByUsername(userDto.getUsername());
+
+        // Si el usuario ya existe, se rechaza el valor del campo 'username' del formulario
+        // y se agrega un mensaje de error personalizado a 'result' para mostrar en la vista
         if(usuarioExistente != null && usuarioExistente.getUsername() != null && !usuarioExistente.getUsername().isEmpty()){
             result.rejectValue("username", null,
                     "There is already an account registered with the same username");
         }
+
+        // Si hay errores de validación, se vuelve a la vista de registro para mostrar los errores
         if(result.hasErrors()){
             model.addAttribute("user", userDto);
             return "/register";
         }
 
+        // Se guarda el usuario en la base de datos
         usuarioService.guardarUsuarioDTO(userDto);
 
+        // Se redirige al usuario a la página principal después de registrar el usuario
         return "redirect:/";
     }
+
 
 
 
